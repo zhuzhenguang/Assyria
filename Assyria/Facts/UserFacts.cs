@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Assyria.Domains;
 using NHibernate;
@@ -9,8 +8,11 @@ namespace Assyria.Facts
 {
     public class UserFacts : TestBase
     {
-        public UserFacts(ITestOutputHelper output) : base(output)
+        private readonly ITestOutputHelper testOutputHelper;
+
+        public UserFacts(ITestOutputHelper output, ITestOutputHelper testOutputHelper) : base(output)
         {
+            this.testOutputHelper = testOutputHelper;
         }
 
         /*
@@ -26,11 +28,14 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 var userId = (long) session.Save(user);
-                {
-                    Assert.True(userId > 0);
-                    Assert.True(user.Id > 0);
-                    VerifyUserName(userId, "Zhu");
-                }
+
+                #region Assertion
+
+                Assert.True(userId > 0);
+                Assert.True(user.Id > 0);
+                VerifyUserName(userId, "Zhu");
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
@@ -38,19 +43,25 @@ namespace Assyria.Facts
                 user = session.Load<User>(user.Id);
                 user.Name = "Zhen";
                 session.Save(user);
-                {
-                    VerifyUserName(user.Id, "Zhu");
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhu");
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
             {
                 user.Name = "Guang";
                 session.Save(user);
-                {
-                    VerifyUserName(user.Id, "Zhu");
-                    VerifyUsersCount(2);
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhu");
+                VerifyUsersCount(2);
+
+                #endregion
             }
         }
 
@@ -64,10 +75,13 @@ namespace Assyria.Facts
             {
                 long id = (long) session.Save(user);
                 Assert.True(id > 0);
-                {
-                    session.Transaction.Commit();
-                    // VerifyUserName(id, "Zhu");
-                }
+
+                #region Assertion
+
+                session.Transaction.Commit();
+                // VerifyUserName(id, "Zhu");
+
+                #endregion
             }
         }
 
@@ -93,18 +107,24 @@ namespace Assyria.Facts
                 user = session.Load<User>(user.Id);
                 user.Name = "Zhen";
                 session.Persist(user);
-                {
-                    VerifyUserName(user.Id, "Zhu");
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhu");
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
             {
                 user.Name = "Guang";
-                {
-                    var exception = Assert.Throws<PersistentObjectException>(() => session.Persist(user));
-                    Assert.Equal("detached entity passed to persist: Assyria.Domains.User", exception.Message);
-                }
+
+                #region Assertion
+
+                var exception = Assert.Throws<PersistentObjectException>(() => session.Persist(user));
+                Assert.Equal("detached entity passed to persist: Assyria.Domains.User", exception.Message);
+
+                #endregion
             }
         }
 
@@ -121,13 +141,16 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 session.Update(user);
-                {
-                    VerifyUsersCount(0);
-                    var exception = Assert.Throws<StaleStateException>(() => session.Flush());
-                    Assert.Equal(
-                        "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
-                        exception.Message);
-                }
+
+                #region Assertion
+
+                VerifyUsersCount(0);
+                var exception = Assert.Throws<StaleStateException>(() => session.Flush());
+                Assert.Equal(
+                    "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
+                    exception.Message);
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
@@ -161,12 +184,15 @@ namespace Assyria.Facts
                 session.Flush();
 
                 session.Update(user);
-                {
-                    var exception = Assert.Throws<StaleStateException>(() => session.Flush());
-                    Assert.Equal(
-                        "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
-                        exception.Message);
-                }
+
+                #region Assertion
+
+                var exception = Assert.Throws<StaleStateException>(() => session.Flush());
+                Assert.Equal(
+                    "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
+                    exception.Message);
+
+                #endregion
             }
         }
 
@@ -193,9 +219,12 @@ namespace Assyria.Facts
                 user.Name = "Zhen";
 
                 session.SaveOrUpdate(user);
-                {
-                    VerifyUserName(user.Id, "Zhu");
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhu");
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
@@ -204,9 +233,12 @@ namespace Assyria.Facts
 
                 user.Name = "Guang";
                 session.Flush();
-                {
-                    Assert.Equal("Guang", user.Name);
-                }
+
+                #region Assertion
+
+                Assert.Equal("Guang", user.Name);
+
+                #endregion
             }
         }
 
@@ -233,9 +265,12 @@ namespace Assyria.Facts
 
                 user.Name = "Zhen";
                 session.Flush();
-                {
-                    VerifyUserName(user.Id, "Zhen");
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhen");
+
+                #endregion
             }
         }
 
@@ -252,20 +287,26 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 User persistentUser = session.Merge(user);
-                {
-                    Assert.Equal(0, user.Id);
-                    Assert.NotEqual(0, persistentUser.Id);
-                    VerifyUserName(persistentUser.Id, "Zhu");
-                }
+
+                #region Assertion
+
+                Assert.Equal(0, user.Id);
+                Assert.NotEqual(0, persistentUser.Id);
+                VerifyUserName(persistentUser.Id, "Zhu");
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
             {
                 user = session.QueryOver<User>().SingleOrDefault();
                 User anotherPersistentUser = session.Merge(user);
-                {
-                    Assert.Same(user, anotherPersistentUser);
-                }
+
+                #region Assertion
+
+                Assert.Same(user, anotherPersistentUser);
+
+                #endregion
             }
 
             var request = new User
@@ -277,25 +318,31 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 user = session.Load<User>(user.Id);
-                Console.WriteLine($"original user name is {user.Name}");
-                {
-                    var exception = Assert.Throws<NonUniqueObjectException>(() => session.Update(request));
-                    Assert.Equal(
-                        "a different object with the same identifier value was already associated with the session: 1, of entity: Hibernate_PersistenceApi.User",
-                        exception.Message);
-                }
+                testOutputHelper.WriteLine($"original user name is {user.Name}");
+
+                #region Assertion
+
+                var exception = Assert.Throws<NonUniqueObjectException>(() => session.Update(request));
+                Assert.Equal(
+                    "a different object with the same identifier value was already associated with the session: 1, of entity: Hibernate_PersistenceApi.User",
+                    exception.Message);
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
             {
                 user = session.Load<User>(user.Id);
-                Console.WriteLine($"original user name is {user.Name}");
+                testOutputHelper.WriteLine($"original user name is {user.Name}");
 
                 session.Merge(request);
                 session.Flush();
-                {
-                    VerifyUserName(user.Id, "Zhen");
-                }
+
+                #region Assertion
+
+                VerifyUserName(user.Id, "Zhen");
+
+                #endregion
             }
         }
 
@@ -324,11 +371,14 @@ namespace Assyria.Facts
             {
                 session.Delete(user);
                 session.Flush();
-                {
-                    VerifyUsersCount(0);
-                    Assert.NotEqual(0, user.Id);
-                    Assert.False(session.Contains(user));
-                }
+
+                #region Assertion
+
+                VerifyUsersCount(0);
+                Assert.NotEqual(0, user.Id);
+                Assert.False(session.Contains(user));
+
+                #endregion
             }
 
             using (ISession session = OpenSession())
@@ -374,20 +424,16 @@ namespace Assyria.Facts
 
         private void VerifyUserName(long id, string expectedName)
         {
-            using (ISession session = OpenSession())
-            {
-                var user = session.Load<User>(id);
-                Assert.Equal(expectedName, user.Name);
-            }
+            using ISession session = OpenSession();
+            var user = session.Load<User>(id);
+            Assert.Equal(expectedName, user.Name);
         }
 
         private void VerifyUsersCount(int count)
         {
-            using (ISession session = OpenSession())
-            {
-                IList<User> users = session.QueryOver<User>().List();
-                Assert.Equal(count, users.Count);
-            }
+            using ISession session = OpenSession();
+            IList<User> users = session.QueryOver<User>().List();
+            Assert.Equal(count, users.Count);
         }
     }
 }
