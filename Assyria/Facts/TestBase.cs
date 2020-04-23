@@ -14,6 +14,7 @@ namespace Assyria.Facts
     {
         private readonly ISessionFactory sessionFactory;
         private readonly string dbFile = "/Users/zgzhu/assyria.db";
+        protected readonly ITestOutputHelper output;
 
         protected TestBase(ITestOutputHelper output)
         {
@@ -28,6 +29,7 @@ namespace Assyria.Facts
                     BuildSchema(config);
                 })
                 .BuildSessionFactory();
+            this.output = output;
         }
 
         protected ISession OpenSession()

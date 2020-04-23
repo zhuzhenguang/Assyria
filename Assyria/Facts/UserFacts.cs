@@ -8,11 +8,8 @@ namespace Assyria.Facts
 {
     public class UserFacts : TestBase
     {
-        private readonly ITestOutputHelper testOutputHelper;
-
-        public UserFacts(ITestOutputHelper output, ITestOutputHelper testOutputHelper) : base(output)
+        public UserFacts(ITestOutputHelper output) : base(output)
         {
-            this.testOutputHelper = testOutputHelper;
         }
 
         /*
@@ -145,9 +142,9 @@ namespace Assyria.Facts
                 #region Assertion
 
                 VerifyUsersCount(0);
-                var exception = Assert.Throws<StaleStateException>(() => session.Flush());
-                Assert.Equal(
-                    "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
+                var exception = Assert.Throws<StaleObjectStateException>(() => session.Flush());
+                Assert.Contains(
+                    "Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)",
                     exception.Message);
 
                 #endregion
@@ -187,9 +184,9 @@ namespace Assyria.Facts
 
                 #region Assertion
 
-                var exception = Assert.Throws<StaleStateException>(() => session.Flush());
-                Assert.Equal(
-                    "Batch update returned unexpected row count from update; actual row count: 0; expected: 1",
+                var exception = Assert.Throws<StaleObjectStateException>(() => session.Flush());
+                Assert.Contains(
+                    "Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)",
                     exception.Message);
 
                 #endregion
@@ -315,16 +312,17 @@ namespace Assyria.Facts
                 Name = "Zhen"
             };
 
+            string userName = user.Name;
             using (ISession session = OpenSession())
             {
                 user = session.Load<User>(user.Id);
-                testOutputHelper.WriteLine($"original user name is {user.Name}");
+                output.WriteLine($"original user name is {user.Name}");
 
                 #region Assertion
 
                 var exception = Assert.Throws<NonUniqueObjectException>(() => session.Update(request));
                 Assert.Equal(
-                    "a different object with the same identifier value was already associated with the session: 1, of entity: Hibernate_PersistenceApi.User",
+                    "a different object with the same identifier value was already associated with the session: 1, of entity: Assyria.Domains.User",
                     exception.Message);
 
                 #endregion
@@ -333,7 +331,7 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 user = session.Load<User>(user.Id);
-                testOutputHelper.WriteLine($"original user name is {user.Name}");
+                output.WriteLine($"original user name is {userName}");
 
                 session.Merge(request);
                 session.Flush();
