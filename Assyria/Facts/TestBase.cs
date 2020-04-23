@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Assyria.Domains;
 using FluentNHibernate.Cfg;
@@ -21,6 +20,7 @@ namespace Assyria.Facts
             sessionFactory = Fluently
                 .Configure()
                 .Database(SQLiteConfiguration.Standard.UsingFile(dbFile).ShowSql)
+                // .Database(SQLiteConfiguration.Standard.InMemory)
                 .Mappings(m => m.FluentMappings.AddFromAssembly(typeof(User).Assembly))
                 .ExposeConfiguration(config =>
                 {
@@ -35,14 +35,6 @@ namespace Assyria.Facts
             ISession session = sessionFactory.OpenSession();
             session.FlushMode = FlushMode.Manual;
             return session;
-        }
-
-        protected void WithNewSession(Action<ISession> assertion)
-        {
-            using (ISession session = OpenSession())
-            {
-                assertion(session);
-            }
         }
 
         private void BuildSchema(Configuration config)

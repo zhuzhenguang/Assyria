@@ -34,6 +34,10 @@
           "target": "Package",
           "version": "[16.5.0, )"
         },
+        "NHibernate": {
+          "target": "Package",
+          "version": "[5.2.7, )"
+        },
         "System.Data.SQLite": {
           "target": "Package",
           "version": "[1.0.112, )"

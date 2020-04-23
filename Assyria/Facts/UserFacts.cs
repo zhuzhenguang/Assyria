@@ -250,7 +250,7 @@ namespace Assyria.Facts
             using (ISession session = OpenSession())
             {
                 var exception = Assert.Throws<TransientObjectException>(() => session.Lock(user, LockMode.None));
-                Assert.Equal("cannot lock an unsaved transient instance: Hibernate_PersistenceApi.User",
+                Assert.Equal("cannot lock an unsaved transient instance: Assyria.Domains.User",
                     exception.Message);
             }
 
